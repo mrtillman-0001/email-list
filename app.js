@@ -9,11 +9,15 @@ module.exports = async function (fastify, opts) {
 
   fastify.addHook('onRequest', async (request, reply) => {
     const is_post_method = /post/ig.test(request.method);
-    const email_address = request.query && request.query.email_address;
+    let email_address = request.query && request.query.email_address;
+    if(email_address){
+      email_address = email_address.trim();
+    }
     if(is_post_method){
-      if(!email_address) reply.send([]);
-      const is_email_valid = isEmail.validate(email_address);
-      request.email_address = (is_email_valid ? email_address : "");
+      if(!email_address || !isEmail.validate(email_address)){
+        reply.send([]);
+      }        
+      request.email_address = email_address;
     }
   })
 
